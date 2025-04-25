@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Employee Management</title>
+  <link rel="stylesheet" href="../assets/css/employees.css" />
+</head>
+<body>
+
+  <header>
+    <nav class="navbar">
+        <div class="logo">The Local Techno</div>
+        <ul class="nav-links">
+            <li><a href="../pages/attendance.html">Attendance</a></li>
+            <li><a href="../pages/notifications.html">notifications</a></li>
+            <li><a href="../pages/settings.html">Settings</a></li>
+        </ul>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+        <div class="hamburger" id="hamburger">&#9776;</div>
+    </nav>
+</header>
+
+  <div class="container">
+    <h1>Employee Management</h1>
+
+    <div class="form-container">
+      <input type="file" id="photo" placeholder="Upload Photo" />
+      <input type="text" id="name" placeholder="Employee Name" />
+      <input type="text" id="id" placeholder="Employee ID" />
+      <input type="number" id="age" placeholder="Age" />
+      <input type="text" id="phone" placeholder="Phone Number" />
+      <input type="text" id="role" placeholder="Role" />
+      <input type="text" id="address" placeholder="Address" />
+      <button onclick="addEmployee()">Add Employee</button>
+    </div>
+
+    <table id="employeeTable">
+      <thead>
+        <tr>
+          <th>Photo</th>
+          <th>Name</th>
+          <th>ID</th>
+          <th>Age</th>
+          <th>Phone</th>
+          <th>Role</th>
+          <th>Address</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="employeeTableBody">
+        <!-- Dynamic Data -->
+      </tbody>
+    </table>
+  </div>
+
+  <script src="../assets/js/employees.js"></script>
+</body>
+</html>
