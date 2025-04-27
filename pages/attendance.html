@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Attendance Dashboard</title>
-  <link rel="stylesheet" href="../assets/css/attendance.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Employee Attendance</title>
+  <link rel="stylesheet" href="../assets/css/attendance.css">
 </head>
 <body>
-<header>
+
+  <header>
     <nav class="navbar">
         <div class="logo">The Local Techno</div>
         <ul class="nav-links">
@@ -19,43 +20,29 @@
         <div class="hamburger" id="hamburger">&#9776;</div>
     </nav>
 </header>
+<div class="container">
+  <h1>Employee Attendance</h1>
+  
+  <table id="attendanceTable">
+    <thead>
+      <tr>
+        <th>Employee Name</th>
+        <th>Employee ID</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Attendance rows will be inserted here -->
+    </tbody>
+  </table>
 
-  <div class="container">
-    <h1>Attendance Dashboard</h1>
+  <button id="downloadAttendance">Download Attendance CSV</button>
 
-    <div class="filters">
-      <input type="text" id="searchName" placeholder="Search by Name" />
-      <select id="filterDepartment">
-        <option value="">All Departments</option>
-        <option value="IT">IT</option>
-        <option value="HR">HR</option>
-        <option value="Sales">Sales</option>
-      </select>
-      <select id="filterRole">
-        <option value="">All Roles</option>
-        <option value="Manager">Manager</option>
-        <option value="Developer">Developer</option>
-        <option value="Executive">Executive</option>
-      </select>
-      <button onclick="exportToExcel()">Export to Excel</button>
-    </div>
-
-    <table id="attendanceTable">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Department</th>
-          <th>Role</th>
-          <th>Status</th>
-          <th>Date</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody">
-        <!-- Dynamic Data -->
-      </tbody>
-    </table>
-  </div>
-
-  <script src="../assets/js/attendance.js"></script>
+</div>
+<script src="../assets/js/attendance.js"></script>
 </body>
 </html>
