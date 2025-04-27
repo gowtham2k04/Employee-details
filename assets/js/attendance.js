@@ -16,63 +16,103 @@ function logout() {
 
 
 
-const attendanceData = [
-    { name: "Gowtham", department: "IT", role: "Developer", status: "Present", date: "2025-04-25" },
-    { name: "Priya", department: "HR", role: "Manager", status: "Late", date: "2025-04-25" },
-    { name: "Raj", department: "Sales", role: "Executive", status: "Absent", date: "2025-04-25" },
-    { name: "Kumar", department: "IT", role: "Developer", status: "Present", date: "2025-04-25" },
-    { name: "Sneha", department: "Sales", role: "Executive", status: "Present", date: "2025-04-25" },
-  ];
+
+document.addEventListener("DOMContentLoaded", loadAttendanceTable);
+
+function loadAttendanceTable() {
+  const employees = JSON.parse(localStorage.getItem('employees')) || [];
+  const attendanceRecords = JSON.parse(localStorage.getItem('attendance')) || [];
+  const tableBody = document.querySelector("#attendanceTable tbody");
+  tableBody.innerHTML = "";
+
+  employees.forEach(employee => {
+    const todayRecord = attendanceRecords.find(record => 
+      record.empID === employee.id && record.date === getTodayDate()
+    );
+
+    const status = todayRecord ? todayRecord.status : "Not Marked";
+    const time = todayRecord ? todayRecord.time : "-";
+
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${employee.name}</td>
+      <td>${employee.id}</td>
+      <td>${employee.role}</td>
+      <td>${status}</td>
+      <td>${getTodayDate()}</td>
+      <td>${time}</td>
+      <td>
+        <button onclick="markAttendance('${employee.id}', 'Present')">Present</button>
+        <button onclick="markAttendance('${employee.id}', 'Absent')">Absent</button>
+      </td>
+    `;
+    tableBody.appendChild(row);
+  });
+}
+
+function markAttendance(empID, status) {
+  const employees = JSON.parse(localStorage.getItem('employees')) || [];
+  const attendanceRecords = JSON.parse(localStorage.getItem('attendance')) || [];
+
+  const employee = employees.find(emp => emp.id == empID);
+  const now = new Date();
   
-  const tableBody = document.getElementById("tableBody");
-  
-  function loadTable(data) {
-    tableBody.innerHTML = "";
-    data.forEach((row) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${row.name}</td>
-        <td>${row.department}</td>
-        <td>${row.role}</td>
-        <td>${row.status}</td>
-        <td>${row.date}</td>
-      `;
-      tableBody.appendChild(tr);
-    });
+  const record = {
+    empName: employee.name,
+    empID: employee.id,
+    role: employee.role,
+    status: status,
+    date: getTodayDate(),
+    time: now.toLocaleTimeString()
+  };
+
+  // Remove old record for today if exists
+  const index = attendanceRecords.findIndex(r => r.empID === empID && r.date === getTodayDate());
+  if (index !== -1) {
+    attendanceRecords.splice(index, 1);
   }
   
-  // Filter functionality
-  document.getElementById("searchName").addEventListener("input", filterData);
-  document.getElementById("filterDepartment").addEventListener("change", filterData);
-  document.getElementById("filterRole").addEventListener("change", filterData);
-  
-  function filterData() {
-    const nameFilter = document.getElementById("searchName").value.toLowerCase();
-    const deptFilter = document.getElementById("filterDepartment").value;
-    const roleFilter = document.getElementById("filterRole").value;
-  
-    const filtered = attendanceData.filter((item) => {
-      return (
-        item.name.toLowerCase().includes(nameFilter) &&
-        (deptFilter === "" || item.department === deptFilter) &&
-        (roleFilter === "" || item.role === roleFilter)
-      );
-    });
-  
-    loadTable(filtered);
+  attendanceRecords.push(record);
+  localStorage.setItem('attendance', JSON.stringify(attendanceRecords));
+  loadAttendanceTable();
+}
+
+function getTodayDate() {
+  const today = new Date();
+  return today.toISOString().split('T')[0];
+}
+
+
+document.getElementById('downloadAttendance').addEventListener('click', downloadAttendanceCSV);
+
+function downloadAttendanceCSV() {
+  const attendanceRecords = JSON.parse(localStorage.getItem('attendance')) || [];
+
+  if (attendanceRecords.length === 0) {
+    alert("No attendance records available!");
+    return;
   }
-  
-  // Export to Excel
-  function exportToExcel() {
-    let table = document.getElementById("attendanceTable");
-    let html = table.outerHTML;
-    let url = 'data:application/vnd.ms-excel,' + escape(html); 
-    let link = document.createElement('a');
-    link.href = url;
-    link.download = 'Attendance_Report.xls';
-    link.click();
-  }
-  
-  // Initial load
-  loadTable(attendanceData);
-  
+
+  let csvContent = "data:text/csv;charset=utf-8,";
+  csvContent += "Employee Name,Employee ID,Role,Status,Date,Time\n"; // CSV Header
+
+  attendanceRecords.forEach(record => {
+    const row = [
+      record.empName,
+      record.empID,
+      record.role,
+      record.status,
+      record.date,
+      record.time
+    ];
+    csvContent += row.join(",") + "\n";
+  });
+
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "employee_attendance.csv");
+  document.body.appendChild(link); // Required for Firefox
+  link.click();
+  document.body.removeChild(link);
+}
