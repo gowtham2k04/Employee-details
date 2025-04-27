@@ -15,85 +15,114 @@ function logout() {
 }
 
 
-const employeeData = JSON.parse(localStorage.getItem("employees")) || [];
+document.addEventListener("DOMContentLoaded", loadEmployees);
 
-const tableBody = document.getElementById("employeeTableBody");
+document.getElementById("employeeForm").addEventListener("submit", addEmployee);
+document.getElementById('downloadBtn').addEventListener('click', downloadPDF);
 
-// Function to load employees from local storage
 function loadEmployees() {
+  let employees = JSON.parse(localStorage.getItem("employees")) || [];
+  let tableBody = document.querySelector("#employeeTable tbody");
   tableBody.innerHTML = "";
-  employeeData.forEach((emp, index) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td><img src="${emp.photo}" alt="Photo" /></td>
-      <td>${emp.name}</td>
-      <td>${emp.id}</td>
-      <td>${emp.age}</td>
-      <td>${emp.phone}</td>
-      <td>${emp.role}</td>
-      <td>${emp.address}</td>
+
+  employees.forEach((employee, index) => {
+    let row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${employee.name}</td>
+      <td>${employee.id}</td>
+      <td>${employee.role}</td>
+      <td>${employee.phone}</td>
+      <td>${employee.email}</td>
+      <td>${employee.address}</td>
+      <td>${employee.hireDate}</td>
       <td>
         <button onclick="editEmployee(${index})">Edit</button>
         <button onclick="deleteEmployee(${index})">Delete</button>
       </td>
     `;
-    tableBody.appendChild(tr);
+    tableBody.appendChild(row);
   });
 }
 
-// Add new employee
-function addEmployee() {
-  const photo = document.getElementById("photo").files[0];
-  const name = document.getElementById("name").value;
-  const id = document.getElementById("id").value;
-  const age = document.getElementById("age").value;
-  const phone = document.getElementById("phone").value;
-  const role = document.getElementById("role").value;
-  const address = document.getElementById("address").value;
+function addEmployee(e) {
+  e.preventDefault();
 
-  if (photo && name && id && age && phone && role && address) {
-    const photoUrl = URL.createObjectURL(photo);
+  const name = document.getElementById("empName").value;
+  const id = document.getElementById("empID").value;
+  const role = document.getElementById("empRole").value;
+  const phone = document.getElementById("empPhone").value;
+  const email = document.getElementById("empEmail").value;
+  const address = document.getElementById("empAddress").value;
+  const hireDate = document.getElementById("empHireDate").value;
 
-    const newEmployee = { photo: photoUrl, name, id, age, phone, role, address };
-    employeeData.push(newEmployee);
+  if (name && id && role && phone && email && address && hireDate) {
+    let employees = JSON.parse(localStorage.getItem("employees")) || [];
+    employees.push({ name, id, role, phone, email, address, hireDate });
+    localStorage.setItem("employees", JSON.stringify(employees));
 
-    localStorage.setItem("employees", JSON.stringify(employeeData));
+    document.getElementById("employeeForm").reset();
     loadEmployees();
-
-    // Clear input fields
-    document.getElementById("photo").value = "";
-    document.getElementById("name").value = "";
-    document.getElementById("id").value = "";
-    document.getElementById("age").value = "";
-    document.getElementById("phone").value = "";
-    document.getElementById("role").value = "";
-    document.getElementById("address").value = "";
-  } else {
-    alert("Please fill in all fields.");
   }
 }
 
-// Edit employee
-function editEmployee(index) {
-  const emp = employeeData[index];
-
-  document.getElementById("photo").value = emp.photo;
-  document.getElementById("name").value = emp.name;
-  document.getElementById("id").value = emp.id;
-  document.getElementById("age").value = emp.age;
-  document.getElementById("phone").value = emp.phone;
-  document.getElementById("role").value = emp.role;
-  document.getElementById("address").value = emp.address;
-
-  deleteEmployee(index); // Remove current record before editing
-}
-
-// Delete employee
 function deleteEmployee(index) {
-  employeeData.splice(index, 1);
-  localStorage.setItem("employees", JSON.stringify(employeeData));
+  let employees = JSON.parse(localStorage.getItem("employees")) || [];
+  employees.splice(index, 1);
+  localStorage.setItem("employees", JSON.stringify(employees));
   loadEmployees();
 }
 
-// Load data on page load
-loadEmployees();
+function editEmployee(index) {
+  let employees = JSON.parse(localStorage.getItem("employees")) || [];
+  const employee = employees[index];
+
+  document.getElementById("empName").value = employee.name;
+  document.getElementById("empID").value = employee.id;
+  document.getElementById("empRole").value = employee.role;
+  document.getElementById("empPhone").value = employee.phone;
+  document.getElementById("empEmail").value = employee.email;
+  document.getElementById("empAddress").value = employee.address;
+  document.getElementById("empHireDate").value = employee.hireDate;
+
+  document.getElementById("employeeForm").removeEventListener("submit", addEmployee);
+  document.getElementById("employeeForm").addEventListener("submit", function updateEmployee(e) {
+    e.preventDefault();
+    employees[index] = {
+      name: document.getElementById("empName").value,
+      id: document.getElementById("empID").value,
+      role: document.getElementById("empRole").value,
+      phone: document.getElementById("empPhone").value,
+      email: document.getElementById("empEmail").value,
+      address: document.getElementById("empAddress").value,
+      hireDate: document.getElementById("empHireDate").value,
+    };
+    localStorage.setItem("employees", JSON.stringify(employees));
+    document.getElementById("employeeForm").reset();
+    loadEmployees();
+    document.getElementById("employeeForm").removeEventListener("submit", updateEmployee);
+    document.getElementById("employeeForm").addEventListener("submit", addEmployee);
+  });
+}
+
+function downloadPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let employees = JSON.parse(localStorage.getItem("employees")) || [];
+
+  const tableHeader = ['Name', 'ID', 'Role', 'Phone', 'Email', 'Address', 'Hire Date'];
+
+  let tableData = employees.map(emp => [
+    emp.name, emp.id, emp.role, emp.phone, emp.email, emp.address, emp.hireDate
+  ]);
+
+  doc.autoTable({
+    head: [tableHeader],
+    body: tableData,
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [52, 152, 219] },
+    margin: { top: 20 },
+  });
+
+  doc.save('employee_data.pdf');
+}
