@@ -170,3 +170,25 @@ th {
 tr:hover {
   background-color: #333;
 }
+
+
+/* CSS */
+#downloadAttendance {
+  background: linear-gradient(135deg, #205303, #09d33c);
+  color: white;
+  padding: 12px 24px;
+  font-size: 16px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+#downloadAttendance:hover {
+  background: linear-gradient(135deg, #17b109, #32e206);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  transform: scale(1.05);
+}
